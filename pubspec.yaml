@@ -69,6 +69,7 @@ dependencies:
   flutter_avif: ^1.4.0
   aws_s3_upload: ^1.5.0
   path_provider: ^2.0.2
+  smooth_page_indicator: ^1.2.0+3
 
 dev_dependencies:
   flutter_test:
@@ -88,6 +89,8 @@ flutter:
 
   assets:
     - .env
+    - assets/images/
+    - assets/icons/
 
   fonts:
     - family: Raleway
