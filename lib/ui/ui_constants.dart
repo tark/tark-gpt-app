@@ -65,6 +65,11 @@ class AppImages {
   static const promoCashIconPng = '$icons/promo_cash.png';
   static const facebookIcon = '$icons/facebook.svg';
   static const googleIcon = '$icons/google.svg';
+  static const gptIcon = '$icons/gpt.svg';
+  static const capabilitiesIcon = '$icons/capabilities.svg';
+  static const examplesIcon = '$icons/examples.svg';
+  static const limitationsIcon = '$icons/limitations.svg';
+  // static const arrowRightIcon = '$icons/limitations.svg';
   static const spotifyIcon = '$icons/spotify.svg';
   static const nfcSlashIcon = '$icons/nfc_slash.svg';
   static const socialIconFacebook = '$icons/social_icon_facebook.svg';
@@ -137,6 +142,7 @@ class AppSize {
   static const strokeWidthNormal = 4.0;
   static const strokeWidthBig = 7.0;
 
+  static const iconSizeMicro = 10.0;
   static const iconSizeSmall = 20.0;
   static const iconSizeBig = 32.0;
   static const iconSizeHuge = 92.0;
@@ -159,7 +165,7 @@ class AppSize {
   static const fontNormalBig = 18.0;
   static const fontMedium = 20.0;
   static const fontBig = 24.0;
-  static const fontBigExtra = 30.0;
+  static const fontBigExtra = 32.0;
   static const fontHuge = 36.0;
 
   static const paddingMinimum = 1.0;
