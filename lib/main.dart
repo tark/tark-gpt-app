@@ -9,6 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'api/api.dart';
 import 'blocs/main_cubit.dart';
 import 'ui/guide_screen.dart';
+import 'ui/main_menu.dart';
 import 'ui/theme/dark_theme.dart';
 import 'ui/theme/light_theme.dart';
 
@@ -45,17 +46,30 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MainCubit>(
-          create: (c) => MainCubit(
-          ),
+          create: (c) => MainCubit(),
           lazy: false,
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        home: GuideScreen(),
+      child: BlocBuilder<MainCubit, MainState>(
+        builder: (context, state) {
+          if (state.showOnboarding) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              home: GuideScreen(),
+            );
+          } else {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              home: MainMenuScreen(), // Replace with your main menu screen
+            );
+          }
+        },
       ),
     );
   }
 }
+
