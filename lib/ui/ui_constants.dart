@@ -37,6 +37,7 @@ class AppImages {
   static const checkBoxCheckedDarkIcon = '$icons/check_box_checked_dark.svg';
   static const checkBoxErrorIcon = '$icons/check_box_error.svg';
   static const leftArrowIcon = '$icons/arrow_left.svg';
+  static const arrowForwardIcon = '$icons/arrow_forward.svg';
   static const closeIcon = '$icons/close.svg';
   static const closeRedIcon = '$icons/close_red.svg';
   static const nfcIcon = '$icons/nfc.svg';
@@ -66,10 +67,10 @@ class AppImages {
   static const facebookIcon = '$icons/facebook.svg';
   static const googleIcon = '$icons/google.svg';
   static const gptIcon = '$icons/gpt.svg';
+  static const chatIcon = '$icons/chat.svg';
   static const capabilitiesIcon = '$icons/capabilities.svg';
   static const examplesIcon = '$icons/examples.svg';
   static const limitationsIcon = '$icons/limitations.svg';
-  // static const arrowRightIcon = '$icons/limitations.svg';
   static const spotifyIcon = '$icons/spotify.svg';
   static const nfcSlashIcon = '$icons/nfc_slash.svg';
   static const socialIconFacebook = '$icons/social_icon_facebook.svg';
@@ -101,13 +102,15 @@ class AppImages {
 
 class AppColors {
   static const green = Color(0xff7BA34B);
-  static const greenAccent = Color(0xff27C76F);
+  static const greenAccent = Color(0xFF10A37F);
   static const blue = Color(0xff4451CB);
   static const text = Color(0xff2D2F3E);
   static const textSecondary = Color(0x662D2F3E);
-  static const lightBackground = Color(0xffF8F8F8);
+  static const gray = Color(0x66FFFFFF);
+  static const background = Color(0xFF343541);
   static const red = Color(0xffEB5757);
-  static const cardBackground = Color(0xccF2F4F5);
+  static const cardBackground = Color(0xFF444550);
+  static const stepsSecondary = Color(0x33FFFFFF);
   static const gradientBlue = Color(0xff4B50C7);
   static const gradientYellow = Color(0xffC19A4D);
   static const dialogBarrier = Color(0xD92C2E3E);
@@ -122,6 +125,7 @@ class AppColors {
 class AppColorsDarkTheme {
   static const background = Color(0xff1b1b22);
   static const cardBackground = Color(0xFF242433);
+  static const greenAccent = Color(0xff27C76F);
   static const blue = Color(0xff5566FF);
   static const blueSecondary = Color(0x80a09ae4);
   static const text = Color(0xffF0F1F5);
@@ -134,7 +138,6 @@ class AppColorsDarkTheme {
   static const checkInExternalBackground = Color(0xFF1B1B22);
   static const checkInExternalCardBackground = cardBackground;
   static const checkInExternalInfoTitle = textSecondary;
-
 }
 
 class AppSize {
@@ -269,7 +272,7 @@ class AppPadding extends EdgeInsets {
 
   // bottom left
   static const bottomLeftNormal =
-  EdgeInsets.only(bottom: _normal, left: _normal);
+      EdgeInsets.only(bottom: _normal, left: _normal);
 
   // bottom right
   static const bottomRightBig = EdgeInsets.only(bottom: _big, right: _big);
