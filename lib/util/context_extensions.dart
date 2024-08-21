@@ -3,21 +3,28 @@ import 'package:flutter/material.dart';
 import '../ui/ui_constants.dart';
 
 extension ContextExtention on BuildContext {
-  Color get background => Theme.of(this).colorScheme.background;
+  Color get background =>
+      isDark ? AppColorsDarkTheme.background : AppColors.background;
 
   Color get scaffoldBackground => Theme.of(this).scaffoldBackgroundColor;
 
   Color get primary => Theme.of(this).colorScheme.primary;
 
-  Color get secondary => Theme.of(this).colorScheme.primaryContainer;
+  Color get greenAccent => AppColors.greenAccent;
+
+  Color get cardBackground => AppColors.cardBackground;
+
+  Color get secondary => AppColors.stepsSecondary;
+
+  Color get stepsSecondary => AppColors.stepsSecondary;
+
+  Color get gray => AppColors.gray;
 
   Color get accent => Theme.of(this).colorScheme.secondary;
 
   Color get accentSecondary => Theme.of(this).colorScheme.secondaryContainer;
 
   Color get error => Theme.of(this).colorScheme.error;
-
-  Color get cardBackground => Theme.of(this).cardColor;
 
   Color get dialogBarrier =>
       isDark ? AppColorsDarkTheme.dialogBarrier : AppColors.dialogBarrier;
