@@ -1,36 +1,19 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:tark_gpt_app/util/context_extensions.dart';
 
 import 'api/api.dart';
 import 'blocs/main_cubit.dart';
 import 'ui/guide_screen.dart';
-import 'ui/main_menu.dart';
+import 'ui/chat_menu_screen.dart';
 import 'ui/theme/dark_theme.dart';
 import 'ui/theme/light_theme.dart';
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    systemNavigationBarColor: Color(0xFF343541), // Set the desired color here
-    statusBarColor: Color(0xFF343541),
-    systemNavigationBarDividerColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-  ));
-
-  await dotenv.load(fileName: ".env");
-
-  final api = Api();
-
-  runApp(MyApp(
-    api: api,
-  ));
+  runApp(MyApp(api: Api()));
 }
 
 class MyApp extends StatelessWidget {
@@ -50,26 +33,32 @@ class MyApp extends StatelessWidget {
           lazy: false,
         ),
       ],
-      child: BlocBuilder<MainCubit, MainState>(
-        builder: (context, state) {
-          if (state.showOnboarding) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: lightTheme,
-              darkTheme: darkTheme,
-              home: GuideScreen(),
-            );
-          } else {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: lightTheme,
-              darkTheme: darkTheme,
-              home: MainMenuScreen(), // Replace with your main menu screen
-            );
-          }
+      child: Builder(
+        builder: (context) {
+          SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+            systemNavigationBarColor: context.background,
+            statusBarColor: context.background,
+            systemNavigationBarDividerColor: Colors.transparent,
+            statusBarIconBrightness:
+                context.isDark ? Brightness.light : Brightness.dark,
+          ));
+
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            home: BlocBuilder<MainCubit, MainState>(
+              builder: (c, s) {
+                if (s.showOnboarding) {
+                  return const GuideScreen();
+                } else {
+                  return ChatMenuScreen();
+                }
+              },
+            ),
+          );
         },
       ),
     );
   }
 }
-
