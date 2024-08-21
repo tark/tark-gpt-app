@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tark_gpt_app/config/settings.dart';
 
 part 'main_state.dart';
 
@@ -9,19 +11,19 @@ class MainCubit extends Cubit<MainState> {
     _init();
   }
 
-  Future _init() async {
-    final prefs = await SharedPreferences.getInstance();
-    final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
-    if (!hasSeenOnboarding) {
-      emit(state.copyWith(showOnboarding: true));
+  Future<void> _init() async {
+    final showOnboarding = await Settings.getShowOnboarding();
+    if (!showOnboarding) {
+      emit(const MainState.onboarding());
     } else {
-      emit(state.copyWith(showOnboarding: false));
+      emit(const MainState.chatMainMenu());
     }
   }
 
-  Future<void> completeOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasSeenOnboarding', true);
-    emit(state.copyWith(showOnboarding: false));
+  void completeOnboarding() async {
+    await Settings.setShowOnboarding(true);
+    emit(const MainState.chatMainMenu());
   }
 }
+
+
