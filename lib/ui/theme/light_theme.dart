@@ -68,7 +68,7 @@ final lightTheme = ThemeData(
     onSecondary: AppColors.green,
     error: AppColors.red,
     onError: AppColors.red,
-    onBackground: AppColors.lightBackground,
+    onBackground: AppColors.background,
     surface: Colors.green,
     onSurface: Colors.green,
   ),
@@ -93,7 +93,7 @@ final lightTheme = ThemeData(
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     elevation: 0,
-    backgroundColor: AppColors.lightBackground,
+    backgroundColor: AppColors.background,
     selectedItemColor: AppColors.blue,
     unselectedItemColor: AppColors.textSecondary,
     unselectedLabelStyle: TextStyle(
