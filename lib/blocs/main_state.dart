@@ -4,13 +4,14 @@ class MainState extends Equatable {
   const MainState({
     this.appVersion = '',
     this.apiUrl = '',
-    this.showOnboarding = true,
+    this.showOnboarding = false,
   });
 
-  const MainState.initial()
-      : appVersion = '',
-        apiUrl = '',
-        showOnboarding = true;
+  const MainState.initial() : this();
+
+  const MainState.onboarding() : this(showOnboarding: true);
+
+  const MainState.chatMainMenu() : this(showOnboarding: false);
 
   final String? appVersion;
   final String? apiUrl;
@@ -30,8 +31,8 @@ class MainState extends Equatable {
 
   @override
   List<Object?> get props => [
-    appVersion,
-    apiUrl,
-    showOnboarding,
-  ];
+        appVersion,
+        apiUrl,
+        showOnboarding,
+      ];
 }
