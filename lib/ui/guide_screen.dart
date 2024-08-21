@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tark_gpt_app/util/context_extensions.dart';
 
 import 'common_widgets/texts.dart';
 import 'common_widgets/text_card.dart';
 import 'common_widgets/buttons.dart';
 import 'common_widgets/page_indicator.dart';
 import 'common_widgets/slider_page.dart';
+
 import '../blocs/main_cubit.dart';
 import 'ui_constants.dart';
-
 
 class GuideScreen extends StatefulWidget {
   const GuideScreen({super.key});
@@ -26,7 +27,7 @@ class _GuideScreenState extends State<GuideScreen> {
   void initState() {
     super.initState();
     _pageController.addListener(() {
-      int newPage = _pageController.page?.round() ?? 0;
+      final newPage = _pageController.page?.round() ?? 0;
       if (newPage != _currentPage) {
         setState(() {
           _currentPage = newPage;
@@ -58,7 +59,7 @@ class _GuideScreenState extends State<GuideScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
       ),
-      backgroundColor: const Color(0xFF343541),
+      backgroundColor: context.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -92,7 +93,7 @@ class _GuideScreenState extends State<GuideScreen> {
                 ),
                 const Vertical.big(),
                 SizedBox(
-                  height: 400.0, // Specify a fixed height for PageView
+                  height: 400.0,
                   child: PageView(
                     controller: _pageController,
                     physics: const BouncingScrollPhysics(),
@@ -101,27 +102,45 @@ class _GuideScreenState extends State<GuideScreen> {
                         iconPath: AppImages.examplesIcon,
                         title: "Examples",
                         cards: [
-                          TextCard(text: "“Explain quantum computing in simple terms”"),
-                          TextCard(text: "“Got any creative ideas for a 10 year old’s birthday?”"),
-                          TextCard(text: "“How do I make an HTTP request in JavaScript?”"),
+                          TextCard(
+                              text:
+                                  "“Explain quantum computing in simple terms”"),
+                          TextCard(
+                              text:
+                                  "“Got any creative ideas for a 10 year old’s birthday?”"),
+                          TextCard(
+                              text:
+                                  "“How do I make an HTTP request in JavaScript?”"),
                         ],
                       ),
                       SliderPage(
                         iconPath: AppImages.capabilitiesIcon,
                         title: "Capabilities",
                         cards: [
-                          TextCard(text: "Remembers what user said earlier in the conversation"),
-                          TextCard(text: "Allows user to provide follow-up corrections"),
-                          TextCard(text: "Trained to decline inappropriate requests"),
+                          TextCard(
+                              text:
+                                  "Remembers what user said earlier in the conversation"),
+                          TextCard(
+                              text:
+                                  "Allows user to provide follow-up corrections"),
+                          TextCard(
+                              text:
+                                  "Trained to decline inappropriate requests"),
                         ],
                       ),
                       SliderPage(
                         iconPath: AppImages.limitationsIcon,
                         title: "Limitations",
                         cards: [
-                          TextCard(text: "May occasionally generate incorrect information"),
-                          TextCard(text: "May occasionally produce harmful instructions or biased content"),
-                          TextCard(text: "Limited knowledge of world and events after 2021"),
+                          TextCard(
+                              text:
+                                  "May occasionally generate incorrect information"),
+                          TextCard(
+                              text:
+                                  "May occasionally produce harmful instructions or biased content"),
+                          TextCard(
+                              text:
+                                  "Limited knowledge of world and events after 2021"),
                         ],
                       ),
                     ],
@@ -131,15 +150,15 @@ class _GuideScreenState extends State<GuideScreen> {
                 PageIndicator(
                   count: 3,
                   currentIndex: _currentPage,
-                  activeColor: const Color(0xFF10A37F),
-                  inactiveColor: const Color(0x33FFFFFF),
+                  activeColor: context.greenAccent,
+                  inactiveColor: context.stepsSecondary,
                 ),
                 const Vertical.big(),
-                Container(
+                SizedBox(
                   width: double.infinity,
                   child: Buttons(
                     onPressed: _nextPage,
-                    buttonColor: const Color(0xFF10A37F),
+                    buttonColor: context.greenAccent,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -152,11 +171,8 @@ class _GuideScreenState extends State<GuideScreen> {
                         if (_currentPage == 2)
                           Padding(
                             padding: AppPadding.leftSmall,
-                            child: SvgPicture.asset(
-                              AppImages.arrowRightIcon,
-                              height: AppSize.iconSizeMicro,
-                              color: Colors.white,
-                            ),
+                            child: SvgPicture.asset(AppImages.arrowRightIcon,
+                                height: AppSize.iconSizeMicro),
                           ),
                       ],
                     ),
