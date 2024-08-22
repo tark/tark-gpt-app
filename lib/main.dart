@@ -5,12 +5,14 @@ import 'package:tark_gpt_app/util/context_extensions.dart';
 
 import 'api/api.dart';
 import 'blocs/main_cubit.dart';
+import 'blocs/chat_cubit.dart';
 import 'ui/guide_screen.dart';
 import 'ui/chat_menu_screen.dart';
 import 'ui/theme/dark_theme.dart';
 import 'ui/theme/light_theme.dart';
 
 Future<void> main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(MyApp(api: Api()));
@@ -29,7 +31,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MainCubit>(
-          create: (c) => MainCubit(),
+          create: (context) => MainCubit(), // MainCubit doesn't need the Api
           lazy: false,
         ),
       ],
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
             statusBarColor: context.background,
             systemNavigationBarDividerColor: Colors.transparent,
             statusBarIconBrightness:
-                context.isDark ? Brightness.light : Brightness.dark,
+            context.isDark ? Brightness.light : Brightness.dark,
           ));
 
           return MaterialApp(
@@ -48,11 +50,18 @@ class MyApp extends StatelessWidget {
             theme: lightTheme,
             darkTheme: darkTheme,
             home: BlocBuilder<MainCubit, MainState>(
-              builder: (c, s) {
-                if (s.showOnboarding) {
+              builder: (context, state) {
+                if (state.showOnboarding) {
                   return const GuideScreen();
                 } else {
-                  return ChatMenuScreen();
+                  return MultiBlocProvider(
+                    providers: [
+                      BlocProvider<ChatCubit>(
+                        create: (context) => ChatCubit(api: api),
+                      ),
+                    ],
+                    child: const ChatMenuScreen(),
+                  );
                 }
               },
             ),
