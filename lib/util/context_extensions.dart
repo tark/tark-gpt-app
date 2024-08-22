@@ -20,6 +20,8 @@ extension ContextExtention on BuildContext {
 
   Color get gray => AppColors.gray;
 
+  Color get red => AppColors.red;
+
   Color get accent => Theme.of(this).colorScheme.secondary;
 
   Color get accentSecondary => Theme.of(this).colorScheme.secondaryContainer;
