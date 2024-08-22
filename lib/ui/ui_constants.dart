@@ -32,12 +32,14 @@ class AppImages {
   static const checkBigWhiteIcon = '$icons/check_big_white.svg';
   static const errorBigIcon = '$icons/error_big.svg';
   static const checkBoxIcon = '$icons/check_box.svg';
+  static const messageIcon = '$icons/message.svg';
   static const checkBoxDarkIcon = '$icons/check_box_dark.svg';
   static const checkBoxCheckedIcon = '$icons/check_box_checked.svg';
   static const checkBoxCheckedDarkIcon = '$icons/check_box_checked_dark.svg';
   static const checkBoxErrorIcon = '$icons/check_box_error.svg';
   static const leftArrowIcon = '$icons/arrow_left.svg';
   static const arrowForwardIcon = '$icons/arrow_forward.svg';
+  static const arrowBackIcon = '$icons/arrow_back.svg';
   static const closeIcon = '$icons/close.svg';
   static const closeRedIcon = '$icons/close_red.svg';
   static const nfcIcon = '$icons/nfc.svg';
@@ -108,7 +110,7 @@ class AppColors {
   static const textSecondary = Color(0x662D2F3E);
   static const gray = Color(0x66FFFFFF);
   static const background = Color(0xFF343541);
-  static const red = Color(0xffEB5757);
+  static const red = Color(0xFFED8C8C);
   static const cardBackground = Color(0xFF444550);
   static const stepsSecondary = Color(0x33FFFFFF);
   static const gradientBlue = Color(0xff4B50C7);
@@ -145,9 +147,9 @@ class AppSize {
   static const strokeWidthNormal = 4.0;
   static const strokeWidthBig = 7.0;
 
-  static const iconSizeMicro = 10.0;
+  static const iconSizeMicro = 12.0;
   static const iconSizeSmall = 20.0;
-  static const iconSizeBig = 32.0;
+  static const iconSizeBig = 36.0;
   static const iconSizeHuge = 92.0;
   static const iconSize = 24.0;
   static const countryIconSize = 50.0;
