@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tark_gpt_app/util/context_extensions.dart';
 
 import '../ui_constants.dart';
 
@@ -19,12 +20,13 @@ class TextCard extends StatelessWidget {
       width: double.infinity,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Color(0xFF444550),
+        color: context.cardBackground,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
         padding: AppPadding.horizontalHuge, // Add horizontal padding
-        child: Texts(  // Assuming 'Texts' is your custom text widget
+        child: Texts(
+          // Assuming 'Texts' is your custom text widget
           text,
           fontSize: AppSize.fontNormal,
           fontWeight: FontWeight.w500,

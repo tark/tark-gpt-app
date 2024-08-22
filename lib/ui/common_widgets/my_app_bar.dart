@@ -8,54 +8,57 @@ import 'texts.dart';
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onTap;
   final String title;
-  final String iconPath;
+  final String firstIconPath;
+  final String secondIconPath;
+  final double firstIconSize;
+  final double secondIconSize;
 
   const MyAppBar({
     Key? key,
     required this.onTap,
     required this.title,
-    required this.iconPath,
+    required this.firstIconPath,
+    required this.secondIconPath,
+    required this.firstIconSize,
+    required this.secondIconSize,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      title: InkWell(
-        onTap: onTap,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                SvgPicture.asset(
-                  iconPath,
-                  height: AppSize.iconSizeSmall,
-                ),
-                Horizontal.medium(),
-                Texts(
-                  title,
-                  fontSize: AppSize.fontNormal,
-                  fontWeight: FontWeight.w700,
-                  isCenter: true,
-                ),
-              ],
-            ),
-            SvgPicture.asset(
-              AppImages.arrowForwardIcon,
-              width: AppSize.iconSizeMicro,
-            ),
-          ],
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: AppColors.gray, width: 1.0),
         ),
       ),
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(40.0),
-        child: Padding(
-          padding: AppPadding.allNormal,
-          child: Divider(
-            height: 1.0,
-            thickness: 1.0,
-            color: context.gray,
+      child: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        title: InkWell(
+          onTap: onTap,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  SvgPicture.asset(
+                    firstIconPath,
+                    height: firstIconSize,
+                  ),
+                  const Horizontal.medium(),
+                  Texts(
+                    title,
+                    fontSize: AppSize.fontNormal,
+                    fontWeight: FontWeight.w700,
+                    isCenter: true,
+                  ),
+                ],
+              ),
+              SvgPicture.asset(
+                secondIconPath,
+                height: secondIconSize,
+              ),
+            ],
           ),
         ),
       ),
