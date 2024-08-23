@@ -40,7 +40,9 @@ class AppImages {
   static const leftArrowIcon = '$icons/arrow_left.svg';
   static const arrowForwardIcon = '$icons/arrow_forward.svg';
   static const arrowBackIcon = '$icons/arrow_back.svg';
+  static const roundArrowsIcon = '$icons/round_arrows.svg';
   static const closeIcon = '$icons/close.svg';
+  static const copyIcon = '$icons/copy.svg';
   static const closeRedIcon = '$icons/close_red.svg';
   static const nfcIcon = '$icons/nfc.svg';
   static const cameraIcon = '$icons/camera.svg';
@@ -102,6 +104,11 @@ class AppImages {
   static const faceImage4 = '$images/face_4.jpeg';
 }
 
+class AppAnimations {
+  static const animations = 'assets/animations';
+  static const loadingAnimation = '$animations/loading.json';
+}
+
 class AppColors {
   static const green = Color(0xff7BA34B);
   static const greenAccent = Color(0xFF10A37F);
@@ -111,6 +118,7 @@ class AppColors {
   static const gray = Color(0x66FFFFFF);
   static const background = Color(0xFF343541);
   static const red = Color(0xFFED8C8C);
+  static const black = Color(0xFF202123);
   static const cardBackground = Color(0xFF444550);
   static const stepsSecondary = Color(0x33FFFFFF);
   static const gradientBlue = Color(0xff4B50C7);
@@ -147,7 +155,12 @@ class AppSize {
   static const strokeWidthNormal = 4.0;
   static const strokeWidthBig = 7.0;
 
+  static const animationSizeSmall = 25.0;
+  static const animationSizeMedium = 30.0;
+  static const animationSizeBig = 35.0;
+
   static const iconSizeMicro = 12.0;
+  static const iconSizeMini = 15.0;
   static const iconSizeSmall = 20.0;
   static const iconSizeBig = 36.0;
   static const iconSizeHuge = 92.0;
