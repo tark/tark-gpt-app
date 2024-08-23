@@ -6,8 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tark_gpt_app/blocs/chat_cubit.dart';
 import 'package:tark_gpt_app/api/api.dart';
 
-import 'common_widgets/my_app_bar.dart';
+import 'common_widgets/chat.dart';
 import 'common_widgets/texts.dart';
+import 'common_widgets/my_app_bar.dart';
 import 'chat_screen.dart';
 import 'ui_constants.dart';
 
@@ -44,8 +45,10 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
           child: Column(
             children: [
               ListView.builder(
-                shrinkWrap: true, // Makes ListView only take as much space as needed
-                physics: NeverScrollableScrollPhysics(), // Prevents nested scrolling issues
+                shrinkWrap: true,
+                // Makes ListView only take as much space as needed
+                physics: NeverScrollableScrollPhysics(),
+                // Prevents nested scrolling issues
                 itemCount: _previousChats.length,
                 itemBuilder: (context, index) {
                   final chatTitle = _previousChats[index];
@@ -75,12 +78,18 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
                             }
                           },
                           itemBuilder: (context) => [
-                            const PopupMenuItem(value: 0, child: Texts('Edit')),
+                            const PopupMenuItem(
+                                value: 0,
+                                child: Texts(
+                                  'Edit',
+                                  fontWeight: FontWeight.w600,
+                                )),
                             PopupMenuItem(
                               value: 1,
                               child: Texts(
                                 'Delete',
                                 color: context.red,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -93,7 +102,8 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
                       ],
                     ),
                     onTap: () => _openChat(chatTitle),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 15),
                     tileColor: context.background,
                     shape: const Border(
                       bottom: BorderSide(color: AppColors.gray, width: 1.0),
@@ -107,7 +117,6 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
       ),
     );
   }
-
 
   Future<void> _loadChatHistory() async {
     final prefs = await SharedPreferences.getInstance();
@@ -124,6 +133,7 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
   Future<void> _startNewChat() async {
     await _loadChatHistory();
     String newChatTitle = 'Chat ${_previousChats.length + 1}';
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -143,7 +153,6 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
   }
 
   Future<void> _openChat(String chatTitle) async {
-    await _loadChatHistory();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -152,38 +161,54 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
           child: ChatScreen(chatTitle: chatTitle),
         ),
       ),
-    ).then((_) => _loadChatHistory());
+    ).then((_) async {
+      await _loadChatHistory(); // Ensure the latest chat history is loaded
+    });
   }
 
-  void _editChatName(int index) {
+  void _editChatName(int index) async {
+    final oldTitle = _previousChats[index];
     final TextEditingController editController =
-        TextEditingController(text: _previousChats[index]);
+        TextEditingController(text: oldTitle);
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Texts('Edit Chat Name'),
+          backgroundColor: context.background,
+          title: const Texts(
+            'Edit Chat Name',
+            fontWeight: FontWeight.w600,
+            fontSize: AppSize.fontNormal,
+          ),
           content: TextField(
             controller: editController,
-            decoration: const InputDecoration(hintText: "Enter new chat name"),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Texts('Cancel'),
+              child: const Texts('Cancel', fontWeight: FontWeight.w600),
             ),
             TextButton(
               onPressed: () async {
-                setState(() {
-                  _previousChats[index] = editController.text;
-                });
-                await _saveChatHistory();
-                await _loadChatHistory();
+                final newTitle = editController.text;
+                if (newTitle.isNotEmpty) {
+                  final prefs = await SharedPreferences.getInstance();
+                  final chatHistory = prefs.getStringList(oldTitle);
+                  if (chatHistory != null) {
+                    await prefs.setStringList(newTitle, chatHistory);
+                    await prefs.remove(oldTitle);
+                  }
+                  setState(() {
+                    _previousChats[index] = newTitle;
+                  });
+                  await _saveChatHistory();
+                  await _loadChatHistory();
+                }
                 Navigator.of(context).pop();
               },
-              child: Text('Save'),
+              child: const Texts('Save', fontWeight: FontWeight.w600),
             ),
           ],
         );
@@ -198,5 +223,4 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
     await _saveChatHistory();
     await _loadChatHistory();
   }
-
 }
