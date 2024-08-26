@@ -1,30 +1,28 @@
 part of 'chat_cubit.dart';
 
-abstract class ChatState extends Equatable {
-  const ChatState();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class ChatInitial extends ChatState {}
-
-class ChatLoading extends ChatState {}
-
-class ChatSuccess extends ChatState {
+class ChatState extends Equatable {
+  final bool isLoading;
   final String response;
-
-  const ChatSuccess(this.response);
-
-  @override
-  List<Object?> get props => [response];
-}
-
-class ChatFailure extends ChatState {
   final String error;
 
-  const ChatFailure(this.error);
+  const ChatState({
+    this.isLoading = false,
+    this.response = '',
+    this.error = '',
+  });
+
+  ChatState copyWith({
+    bool? isLoading,
+    String? response,
+    String? error,
+  }) {
+    return ChatState(
+      isLoading: isLoading ?? this.isLoading,
+      response: response ?? this.response,
+      error: error ?? this.error,
+    );
+  }
 
   @override
-  List<Object?> get props => [error];
+  List<Object?> get props => [isLoading, response, error];
 }

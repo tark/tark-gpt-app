@@ -7,16 +7,17 @@ part 'chat_state.dart';
 class ChatCubit extends Cubit<ChatState> {
   final Api api;
 
-  ChatCubit({required this.api}) : super(ChatInitial());
+  ChatCubit({required this.api}) : super(ChatState());
 
   Future<void> sendMessage(String userInput) async {
-    emit(ChatLoading());
+    emit(state.copyWith(isLoading: true, error: '', response: ''));
 
     try {
       final response = await api.sendMessageToOpenAI(userInput);
-      emit(ChatSuccess(response));
+      emit(state.copyWith(isLoading: false, response: response));
     } catch (e) {
-      emit(ChatFailure('Error: Unable to fetch response.'));
+      emit(state.copyWith(
+          isLoading: false, error: 'Error: Unable to fetch response.'));
     }
   }
 }

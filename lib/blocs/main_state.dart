@@ -7,14 +7,8 @@ class MainState extends Equatable {
     this.showOnboarding = false,
   });
 
-  const MainState.initial() : this();
-
-  const MainState.onboarding() : this(showOnboarding: true);
-
-  const MainState.chatMainMenu() : this(showOnboarding: false);
-
-  final String? appVersion;
-  final String? apiUrl;
+  final String appVersion;
+  final String apiUrl;
   final bool showOnboarding;
 
   MainState copyWith({

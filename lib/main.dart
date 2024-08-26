@@ -12,7 +12,6 @@ import 'ui/theme/dark_theme.dart';
 import 'ui/theme/light_theme.dart';
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(MyApp(api: Api()));
@@ -42,7 +41,7 @@ class MyApp extends StatelessWidget {
             statusBarColor: context.background,
             systemNavigationBarDividerColor: Colors.transparent,
             statusBarIconBrightness:
-            context.isDark ? Brightness.light : Brightness.dark,
+                context.isDark ? Brightness.light : Brightness.dark,
           ));
 
           return MaterialApp(
@@ -50,8 +49,8 @@ class MyApp extends StatelessWidget {
             theme: lightTheme,
             darkTheme: darkTheme,
             home: BlocBuilder<MainCubit, MainState>(
-              builder: (context, state) {
-                if (state.showOnboarding) {
+              builder: (c, i) {
+                if (i.showOnboarding) {
                   return const GuideScreen();
                 } else {
                   return MultiBlocProvider(

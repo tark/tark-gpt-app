@@ -226,11 +226,11 @@ class _MyInputState extends State<MyInput> {
                       if (widget.type == MyInputType.cardExpires)
                         CreditCardExpirationDateFormatter(),
                       // if (_isMoney())
-                        // CurrencyTextInputFormatter(
-                        //   locale: 'en',
-                        //   decimalDigits: 0,
-                        //   symbol: '\$',
-                        // ),
+                      // CurrencyTextInputFormatter(
+                      //   locale: 'en',
+                      //   decimalDigits: 0,
+                      //   symbol: '\$',
+                      // ),
                       if (widget.caps) UpperCaseTextFormatter(),
                       if (_isName()) CapitalizationFormatter(),
                     ],
@@ -258,16 +258,16 @@ class _MyInputState extends State<MyInput> {
                 if (_isPhone() && _showCountryInfo) _countryInfo(),
                 if (_isCard()) _cardInfo(),
                 // if (_isCard() && !_isValid() && widget.onCardScanned != null)
-                  IconButton(
-                    onPressed: () => cardScanChannel.invokeMethod('scanCard'),
-                    icon: Icon(
-                      Icons.camera_alt_outlined,
-                      color: context.secondary.withOpacity(0.2),
-                    ),
-                  ),
+                // IconButton(
+                //   onPressed: () => cardScanChannel.invokeMethod('scanCard'),
+                //   icon: Icon(
+                //     Icons.camera_alt_outlined,
+                //     color: context.secondary.withOpacity(0.2),
+                //   ),
+                // ),
                 if (!_isValid() && widget.trailing != null) widget.trailing!,
-                if (!_isValid() && widget.trailingButton != null)
-                  _trailingButton(),
+                // if (!_isValid() && widget.trailingButton != null)
+                //   _trailingButton(),
                 if (_isValid()) _checkIcon(),
                 if (_isPassword()) _eyeIcon(),
               ],
@@ -495,31 +495,30 @@ class _MyInputState extends State<MyInput> {
     );
   }
 
-  Widget _trailingButton() {
-    final child = widget.trailingButton?.icon;
-    final icon = widget.trailingButton?.iconData;
-    final iconColor = widget.trailingButton?.iconColor;
-    final iconSize = widget.trailingButton?.iconSize;
-    return Padding(
-      padding: AppPadding.horizontalSmall,
-      child: SizedBox(
-        width: 36,
-        height: 36,
-        child: IconButton(
-          padding: AppPadding.allZero,
-          onPressed: widget.trailingButton?.onPressed,
-          icon: icon != null
-              ? Icon(
-                  icon,
-                  color: iconColor ?? context.secondary.withOpacity(0.2),
-                  size: iconSize ?? 20,
-                )
-              : (child ?? const SizedBox.shrink()),
-        ),
-      ),
-    );
-  }
-
+  // Widget _trailingButton() {
+  //   final child = widget.trailingButton?.icon;
+  //   final icon = widget.trailingButton?.iconData;
+  //   final iconColor = widget.trailingButton?.iconColor;
+  //   final iconSize = widget.trailingButton?.iconSize;
+  //   return Padding(
+  //     padding: AppPadding.horizontalSmall,
+  //     child: SizedBox(
+  //       width: 36,
+  //       height: 36,
+  //       child: IconButton(
+  //         padding: AppPadding.allZero,
+  //         onPressed: widget.trailingButton?.onPressed,
+  //         icon: icon != null
+  //             ? Icon(
+  //                 icon,
+  //                 color: iconColor ?? context.secondary.withOpacity(0.2),
+  //                 size: iconSize ?? 20,
+  //               )
+  //             : (child ?? const SizedBox.shrink()),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
 
 class UpperCaseTextFormatter extends TextInputFormatter {

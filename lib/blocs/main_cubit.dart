@@ -7,23 +7,21 @@ import 'package:tark_gpt_app/config/settings.dart';
 part 'main_state.dart';
 
 class MainCubit extends Cubit<MainState> {
-  MainCubit() : super(const MainState.initial()) {
+  MainCubit() : super(const MainState()) {
     _init();
   }
 
   Future<void> _init() async {
     final showOnboarding = await Settings.getShowOnboarding();
     if (!showOnboarding) {
-      emit(const MainState.onboarding());
+      emit(state.copyWith(showOnboarding: true));
     } else {
-      emit(const MainState.chatMainMenu());
+      emit(state.copyWith(showOnboarding: false));
     }
   }
 
   void completeOnboarding() async {
     await Settings.setShowOnboarding(true);
-    emit(const MainState.chatMainMenu());
+    emit(state.copyWith(showOnboarding: false));
   }
 }
-
-

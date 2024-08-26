@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
+import 'package:tark_gpt_app/util/util.dart';
 import 'package:tark_gpt_app/blocs/chat_cubit.dart';
 import 'package:tark_gpt_app/util/context_extensions.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tark_gpt_app/config/settings.dart';
 
 import 'common_widgets/my_app_bar.dart';
-import 'common_widgets/chat.dart';
-import 'common_widgets/texts.dart';
 import 'ui_constants.dart';
+import 'common_widgets/texts.dart';
+import 'common_widgets/buttons.dart';
 
 class ChatScreen extends StatefulWidget {
   final String? chatTitle;
@@ -29,7 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     if (widget.chatTitle != null) {
-      _loadChatHistory(widget.chatTitle!);
+      _loadChatHistory(widget.chatTitle ?? '');
     }
   }
 
@@ -53,7 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
         appBar: MyAppBar(
           onTap: () {
             if (widget.chatTitle != null) {
-              _saveChatHistory(widget.chatTitle!);
+              _saveChatHistory(widget.chatTitle ?? '');
             }
             Navigator.of(context).pop(widget.chatTitle ?? 'Untitled Chat');
           },
@@ -69,25 +73,32 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               Expanded(
                 child: BlocConsumer<ChatCubit, ChatState>(
-                  listener: (context, state) {
-                    if (state is ChatLoading) {
+                  listener: (c, i) {
+                    try {
                       setState(() {
-                        _isLoading = true;
-                        _showRegenerateButton = false;
-                        _messages.add({'loading': ''});
+                        _isLoading = i.isLoading;
+                        if (i.isLoading) {
+                          _showRegenerateButton = false;
+                          _messages.add({'loading': ''});
+                        } else if (i.response.isNotEmpty) {
+                          _messages.removeWhere(
+                              (message) => message.containsKey('loading'));
+                          _messages.add({'bot': i.response});
+                          _showRegenerateButton = true;
+                        } else if (i.error.isNotEmpty) {
+                          showError(c, i.error);
+                        }
                       });
-                    } else if (state is ChatSuccess) {
-                      setState(() {
-                        _isLoading = false;
-                        _messages.removeWhere(
-                            (message) => message.containsKey('loading'));
-                        _messages.add({'bot': state.response});
-                        _showRegenerateButton = true;
-                      });
+                    } catch (e) {
+                      showError(c, e.toString());
+                    } finally {
+                      if (!i.isLoading) {
+                        setState(() => _isLoading = false);
+                      }
                     }
                   },
-                  builder: (context, state) {
-                    return ChatUI(
+                  builder: (c, i) {
+                    return Chat(
                       messages: _messages,
                       showInitialMessage: _showInitialMessage,
                       controller: _controller,
@@ -106,13 +117,17 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _loadChatHistory(String chatTitle) async {
-    final prefs = await SharedPreferences.getInstance();
-    final chatHistory = prefs.getStringList(chatTitle);
+    final chatHistory = await Settings.getChatHistory(chatTitle);
     if (chatHistory != null && chatHistory.isNotEmpty) {
       setState(() {
         _messages = chatHistory.map((message) {
-          final isUser = message.startsWith('user:');
-          return {isUser ? 'user' : 'bot': message.substring(4)};
+          if (message.startsWith('user:')) {
+            return {'user': message.substring(5)};
+          } else if (message.startsWith('bot:')) {
+            return {'bot': message.substring(4)};
+          } else {
+            return {'unknown': message};
+          }
         }).toList();
         _showInitialMessage = false;
       });
@@ -120,7 +135,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _saveChatHistory(String chatTitle) async {
-    final prefs = await SharedPreferences.getInstance();
     final chatHistory = _messages.map((message) {
       final userMessage = message['user'];
       final botMessage = message['bot'];
@@ -131,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
       return '';
     }).toList();
-    prefs.setStringList(chatTitle, chatHistory);
+    await Settings.setChatHistory(chatTitle, chatHistory);
   }
 
   void _sendMessage() {
@@ -141,7 +155,6 @@ class _ChatScreenState extends State<ChatScreen> {
         _showInitialMessage = false;
         _showRegenerateButton = false;
       });
-
       final userInput = _controller.text;
       _controller.clear();
 
@@ -157,5 +170,343 @@ class _ChatScreenState extends State<ChatScreen> {
         context.read<ChatCubit>().sendMessage(lastUserMessage);
       }
     }
+  }
+}
+
+class Chat extends StatelessWidget {
+  final List<Map<String, String>> messages;
+  final bool showInitialMessage;
+  final TextEditingController controller;
+  final VoidCallback sendMessage;
+  final VoidCallback? onRegenerate;
+  final bool showRegenerateButton;
+
+  const Chat({
+    Key? key,
+    required this.messages,
+    required this.showInitialMessage,
+    required this.controller,
+    required this.sendMessage,
+    this.onRegenerate,
+    required this.showRegenerateButton,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: Stack(
+            children: [
+              ListView.builder(
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  final message = messages[index];
+                  final isUserMessage = message.containsKey('user');
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 4.0, horizontal: 8.0),
+                    child: Align(
+                      alignment: isUserMessage
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Column(
+                        crossAxisAlignment: isUserMessage
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
+                        children: [
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width *
+                                  (isUserMessage ? 0.65 : 0.75),
+                            ),
+                            child: IntrinsicWidth(
+                              child: Container(
+                                padding: AppPadding.allNormal,
+                                decoration: BoxDecoration(
+                                  color: isUserMessage
+                                      ? context.greenAccent
+                                      : context.cardBackground,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: const Radius.circular(8),
+                                    topRight: const Radius.circular(8),
+                                    bottomLeft: isUserMessage
+                                        ? const Radius.circular(8)
+                                        : const Radius.circular(0),
+                                    bottomRight: isUserMessage
+                                        ? const Radius.circular(0)
+                                        : const Radius.circular(8),
+                                  ),
+                                ),
+                                child: isUserMessage
+                                    ? Texts(
+                                        message['user'],
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: AppSize.fontNormal,
+                                        maxLines: 1000,
+                                      )
+                                    : message.containsKey('loading')
+                                        ? Lottie.asset(
+                                            AppAnimations.loadingAnimation,
+                                            width: AppSize.animationSizeSmall,
+                                            height: AppSize.animationSizeSmall)
+                                        : Texts(
+                                            message['bot'],
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: AppSize.fontNormal,
+                                            maxLines: 1000,
+                                            overflow: TextOverflow.visible,
+                                          ),
+                              ),
+                            ),
+                          ),
+                          if (!isUserMessage && message.containsKey('bot'))
+                            CopyButton(message: message['bot'] ?? ''),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              if (showInitialMessage)
+                Center(
+                  child: Texts(
+                    "Ask anything, get your answer",
+                    fontSize: AppSize.fontNormal,
+                    fontWeight: FontWeight.w600,
+                    color: context.gray,
+                    isCenter: true,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        if (showRegenerateButton && onRegenerate != null)
+          Container(
+            width: MediaQuery.of(context).size.width * 0.5,
+            decoration: BoxDecoration(
+              border: Border.all(color: context.gray, width: 1),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Buttons(
+              height: 35,
+              buttonColor: context.black,
+              onPressed: onRegenerate,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    AppImages.roundArrowsIcon,
+                    height: AppSize.iconSizeMini,
+                  ),
+                  const Horizontal.small(),
+                  const Texts(
+                    'Regenerate response',
+                    fontWeight: FontWeight.w500,
+                    fontSize: AppSize.fontRegular,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ChatInput(
+          controller: controller,
+          onSend: sendMessage,
+        ),
+      ],
+    );
+  }
+}
+
+class ChatInput extends StatelessWidget {
+  final TextEditingController controller;
+  final VoidCallback onSend;
+
+  const ChatInput({
+    Key? key,
+    required this.controller,
+    required this.onSend,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: AppPadding.allNormal,
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: context.cardBackground,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: TextField(
+                controller: controller,
+                onSubmitted: (_) => onSend(),
+                style: const TextStyle(
+                    fontFamily: 'Raleway', fontWeight: FontWeight.w600),
+                decoration: InputDecoration(
+                  fillColor: Colors.transparent,
+                  filled: true,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: context.gray,
+                      width: 2.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: context.primary,
+                      width: 2.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: SvgPicture.asset(
+                      AppImages.messageIcon,
+                      height: AppSize.iconSizeBig,
+                    ),
+                    onPressed: onSend,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CopyButton extends StatefulWidget {
+  final String message;
+
+  const CopyButton({Key? key, required this.message}) : super(key: key);
+
+  @override
+  _CopyButtonState createState() => _CopyButtonState();
+}
+
+class _CopyButtonState extends State<CopyButton> {
+  String _buttonText = "Copy";
+
+  void _copyToClipboard() {
+    Clipboard.setData(ClipboardData(text: widget.message));
+    setState(() {
+      _buttonText = "Copied!";
+    });
+
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        _buttonText = "Copy";
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      onPressed: _copyToClipboard,
+      icon: SvgPicture.asset(
+        AppImages.copyIcon,
+        height: AppSize.iconSizeMini,
+        color: context.gray,
+      ),
+      label: Texts(
+        _buttonText,
+        color: context.gray,
+        fontSize: AppSize.fontRegular,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
+class Messages extends StatelessWidget {
+  final List<Map<String, String>> messages;
+  final bool showInitialMessage;
+  final TextEditingController controller;
+  final VoidCallback sendMessage;
+
+  const Messages({
+    Key? key,
+    required this.messages,
+    required this.showInitialMessage,
+    required this.controller,
+    required this.sendMessage,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: Stack(
+            children: [
+              ListView.builder(
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  final message = messages[index];
+                  final isUserMessage = message.containsKey('user');
+
+                  return ListTile(
+                    title: Align(
+                      alignment: isUserMessage
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        padding: AppPadding.allNormal,
+                        decoration: BoxDecoration(
+                          color: isUserMessage
+                              ? context.greenAccent
+                              : context.cardBackground,
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(8),
+                            topRight: const Radius.circular(8),
+                            bottomLeft: isUserMessage
+                                ? const Radius.circular(8)
+                                : const Radius.circular(0),
+                            bottomRight: isUserMessage
+                                ? const Radius.circular(0)
+                                : const Radius.circular(8),
+                          ),
+                        ),
+                        child: isUserMessage
+                            ? Texts(
+                                message['user'],
+                                fontWeight: FontWeight.w600,
+                              )
+                            : message.containsKey('loading')
+                                ? Lottie.asset(AppAnimations.loadingAnimation,
+                                    width: AppSize.animationSizeSmall)
+                                : Texts(
+                                    message['bot'],
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              if (showInitialMessage)
+                const Center(
+                  child: Texts(
+                    "Ask anything, get your answer",
+                    fontSize: AppSize.fontNormal,
+                    fontWeight: FontWeight.w600,
+                    isCenter: true,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        ChatInput(
+          controller: controller,
+          onSend: sendMessage,
+        ),
+      ],
+    );
   }
 }

@@ -35,7 +35,7 @@ extension StringExtention on String {
     return toLowerCase().contains(query.toLowerCase());
   }
 
-  String translit(){
+  String translit() {
     return Translit().toTranslit(
       source: this,
     );

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tark_gpt_app/util/context_extensions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tark_gpt_app/util/context_extensions.dart';
+import 'package:tark_gpt_app/ui/widgets/my_input.dart';
 import 'package:tark_gpt_app/blocs/chat_cubit.dart';
 import 'package:tark_gpt_app/api/api.dart';
+import 'package:tark_gpt_app/config/settings.dart';
 
-import 'common_widgets/chat.dart';
 import 'common_widgets/texts.dart';
 import 'common_widgets/my_app_bar.dart';
 import 'chat_screen.dart';
@@ -46,9 +46,7 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
             children: [
               ListView.builder(
                 shrinkWrap: true,
-                // Makes ListView only take as much space as needed
                 physics: NeverScrollableScrollPhysics(),
-                // Prevents nested scrolling issues
                 itemCount: _previousChats.length,
                 itemBuilder: (context, index) {
                   final chatTitle = _previousChats[index];
@@ -79,11 +77,12 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
                           },
                           itemBuilder: (context) => [
                             const PopupMenuItem(
-                                value: 0,
-                                child: Texts(
-                                  'Edit',
-                                  fontWeight: FontWeight.w600,
-                                )),
+                              value: 0,
+                              child: Texts(
+                                'Edit',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             PopupMenuItem(
                               value: 1,
                               child: Texts(
@@ -119,22 +118,21 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
   }
 
   Future<void> _loadChatHistory() async {
-    final prefs = await SharedPreferences.getInstance();
+    final chatList = await Settings.getChatList();
     setState(() {
-      _previousChats = prefs.getStringList('chatHistory') ?? [];
+      _previousChats = chatList;
     });
   }
 
   Future<void> _saveChatHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setStringList('chatHistory', _previousChats);
+    await Settings.saveChatList(_previousChats);
   }
 
   Future<void> _startNewChat() async {
     await _loadChatHistory();
-    String newChatTitle = 'Chat ${_previousChats.length + 1}';
 
-    Navigator.push(
+    String newChatTitle = 'Chat ${_previousChats.length + 1}';
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BlocProvider(
@@ -142,18 +140,24 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
           child: ChatScreen(chatTitle: newChatTitle),
         ),
       ),
-    ).then((value) async {
-      if (value != null && value is String && value.isNotEmpty) {
-        setState(() {
-          _previousChats.add(value);
-        });
-        await _saveChatHistory();
+    );
+
+    if (result != null && result is String && result.isNotEmpty) {
+      final chatHistory = await Settings.getChatHistory(result);
+
+      if (chatHistory.isNotEmpty) {
+        if (!_previousChats.contains(result)) {
+          setState(() {
+            _previousChats.add(result);
+          });
+          await _saveChatHistory();
+        }
       }
-    });
+    }
   }
 
   Future<void> _openChat(String chatTitle) async {
-    Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BlocProvider(
@@ -161,9 +165,8 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
           child: ChatScreen(chatTitle: chatTitle),
         ),
       ),
-    ).then((_) async {
-      await _loadChatHistory(); // Ensure the latest chat history is loaded
-    });
+    );
+    await _loadChatHistory();
   }
 
   void _editChatName(int index) async {
@@ -180,8 +183,9 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
             fontWeight: FontWeight.w600,
             fontSize: AppSize.fontNormal,
           ),
-          content: TextField(
+          content: MyInput(
             controller: editController,
+            hint: "Chat name",
           ),
           actions: [
             TextButton(
@@ -194,12 +198,7 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
               onPressed: () async {
                 final newTitle = editController.text;
                 if (newTitle.isNotEmpty) {
-                  final prefs = await SharedPreferences.getInstance();
-                  final chatHistory = prefs.getStringList(oldTitle);
-                  if (chatHistory != null) {
-                    await prefs.setStringList(newTitle, chatHistory);
-                    await prefs.remove(oldTitle);
-                  }
+                  await Settings.editChatName(oldTitle, newTitle);
                   setState(() {
                     _previousChats[index] = newTitle;
                   });
@@ -217,9 +216,14 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
   }
 
   void _deleteChat(int index) async {
+    final chatTitleToDelete = _previousChats[index];
+
     setState(() {
       _previousChats.removeAt(index);
     });
+
+    await Settings.deleteChat(chatTitleToDelete);
+
     await _saveChatHistory();
     await _loadChatHistory();
   }
