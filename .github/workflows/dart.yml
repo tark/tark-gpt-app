@@ -1,0 +1,65 @@
+name: Flutter Android CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.2'  
+
+    - name: Clear Flutter/Dart Cache
+      run: |
+        flutter clean
+        rm -rf ~/.pub-cache
+
+    - name: Check Flutter and Dart Versions
+      run: |
+        flutter --version
+        dart --version
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Set environment variables from GitHub Secrets
+      run: |
+        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Build APK
+      run: flutter build apk --release  
+
+    - name: Build AAB
+      run: flutter build appbundle --release
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-release.apk
+        path: build/app/outputs/apk/release/app-release.apk
+
+    - name: Upload AAB
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-release.aab
+        path: build/app/outputs/bundle/release/app-release.aab
