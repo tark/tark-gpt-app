@@ -25,16 +25,16 @@ if (flutterVersionName == null) {
 
 android {
     namespace = "com.example.tark_openai_whisper_poc"
-    compileSdk = flutter.compileSdkVersion
+    compileSdkVersion 35
     ndkVersion = "26.1.10909125"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_22
-        targetCompatibility JavaVersion.VERSION_22
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "22"
+        jvmTarget = "17"
     }
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
@@ -50,9 +50,10 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
