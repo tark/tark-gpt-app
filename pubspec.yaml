@@ -46,7 +46,7 @@ dependencies:
   permission_handler: ^11.0.1
   avatar_glow: ^2.0.2
   ndef: ^0.3.1
-  uni_links: ^0.5.1
+  # uni_links: ^0.5.1
   translit: ^2.0.1
   collection: ^1.17.1
   share_plus: ^7.1.0
