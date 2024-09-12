@@ -26,7 +26,7 @@ dependencies:
   flutter_svg: ^1.1.5
   syncfusion_flutter_datepicker: ^20.3.50
   flutter_multi_formatter: ^2.8.0
-  flutter_keyboard_visibility: ^5.4.0
+  # flutter_keyboard_visibility: ^5.4.0
   font_awesome_flutter: ^10.2.1
   dots_indicator: ^2.1.0
   currency_text_input_formatter: ^2.1.7
