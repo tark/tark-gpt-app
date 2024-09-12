@@ -17,10 +17,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       
-    - name: Set up JDK 22
+    - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
-        java-version: '22'
+        java-version: '17'
         distribution: 'temurin'
         
     - name: Set up Flutter
@@ -44,13 +44,19 @@ jobs:
     - name: Set environment variables from GitHub Secrets
       run: |
         echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+        # Add any other environment variables here
       shell: bash
 
+    - name: Set up .env file (if applicable)
+      run: |
+        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+      shell: bash
+      
     - name: Build APK
-      run: flutter build apk --release  
+      run: flutter build apk --release --no-shrink
 
     - name: Build AAB
-      run: flutter build appbundle --release
+      run: flutter build appbundle --release --no-shrink
 
     - name: Upload APK
       uses: actions/upload-artifact@v3
