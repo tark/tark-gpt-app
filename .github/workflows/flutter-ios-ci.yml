@@ -1,42 +1,64 @@
-name: iOS-ipa-build
+name: Flutter iOS CI/CD
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build-ios:
-    name: 🎉 iOS Build
+  build-and-deploy:
     runs-on: macos-latest
+
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          architecture: x64
-      - run: flutter pub get
-      
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.0.0'  # Adjust Flutter version as needed
 
-      - run: pod repo update
-        working-directory: ios
+    - name: Install dependencies
+      run: flutter pub get
 
-      - run: flutter build ios --release --no-codesign
+    - name: Install CocoaPods dependencies
+      run: |
+        cd ios
+        pod install
 
-      - run: mkdir Payload
-        working-directory: build/ios/iphoneos
+    - name: Run tests
+      run: flutter test
 
-      - run: mv Runner.app/ Payload
-        working-directory: build/ios/iphoneos
+    - name: Build iOS
+      run: flutter build ios --release --no-codesign
 
-      - name: Zip output
-        run: zip -qq -r -9 FlutterIpaExport.ipa Payload
-        working-directory: build/ios/iphoneos
+    - name: Archive iOS
+      run: |
+        xcodebuild -workspace ios/Runner.xcworkspace \
+          -scheme Runner \
+          -sdk iphoneos \
+          -configuration Release \
+          archive \
+          -archivePath $PWD/build/Runner.xcarchive \
+          CODE_SIGNING_ALLOWED=NO
 
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/ios/iphoneos/FlutterIpaExport.ipa
-          tag: v1.0
-          overwrite: true
-          body: "This is first release"
+    - name: Export IPA
+      run: |
+        xcodebuild -exportArchive \
+          -archivePath $PWD/build/Runner.xcarchive \
+          -exportOptionsPlist ios/ExportOptions.plist \
+          -exportPath $PWD/build
+
+    - name: Upload to TestFlight
+      env:
+        APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+        APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+        APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+      run: |
+        xcrun altool --upload-app --type ios -f build/Runner.ipa \
+          --apiKey $APP_STORE_CONNECT_API_KEY_ID \
+          --apiIssuer $APP_STORE_CONNECT_API_ISSUER_ID \
+          --apiKeyPath $APP_STORE_CONNECT_API_KEY
