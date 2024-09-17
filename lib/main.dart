@@ -14,7 +14,9 @@ import 'ui/theme/light_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(MyApp(api: Api()));
+  runApp(
+    MyApp(api: Api()),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -30,19 +32,21 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MainCubit>(
-          create: (context) => MainCubit(), // MainCubit doesn't need the Api
+          create: (context) => MainCubit(),
           lazy: false,
         ),
       ],
       child: Builder(
         builder: (context) {
-          SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-            systemNavigationBarColor: context.background,
-            statusBarColor: context.background,
-            systemNavigationBarDividerColor: Colors.transparent,
-            statusBarIconBrightness:
-                context.isDark ? Brightness.light : Brightness.dark,
-          ));
+          SystemChrome.setSystemUIOverlayStyle(
+            SystemUiOverlayStyle(
+              systemNavigationBarColor: context.background,
+              statusBarColor: context.background,
+              systemNavigationBarDividerColor: Colors.transparent,
+              statusBarIconBrightness:
+                  context.isDark ? Brightness.light : Brightness.dark,
+            ),
+          );
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,

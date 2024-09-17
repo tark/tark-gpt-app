@@ -20,7 +20,7 @@ class ChatMenuScreen extends StatefulWidget {
 }
 
 class _ChatMenuScreenState extends State<ChatMenuScreen> {
-  List<String> _previousChats = [];
+  var _previousChats = <String>[];
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext c) {
     return Scaffold(
       appBar: MyAppBar(
         onTap: _startNewChat,
@@ -39,17 +39,17 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
         firstIconSize: AppSize.iconSizeSmall,
         secondIconSize: AppSize.iconSizeMicro,
       ),
-      backgroundColor: context.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: _previousChats.length,
-                itemBuilder: (context, index) {
-                  final chatTitle = _previousChats[index];
+                itemBuilder: (c, i) {
+                  final chatTitle = _previousChats[i];
                   return ListTile(
                     leading: SvgPicture.asset(
                       AppImages.chatIcon,
@@ -70,12 +70,12 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
                           ),
                           onSelected: (value) {
                             if (value == 0) {
-                              _editChatName(index);
+                              _editChatName(i);
                             } else if (value == 1) {
-                              _deleteChat(index);
+                              _deleteChat(i);
                             }
                           },
-                          itemBuilder: (context) => [
+                          itemBuilder: (c) => [
                             const PopupMenuItem(
                               value: 0,
                               child: Texts(
@@ -87,7 +87,7 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
                               value: 1,
                               child: Texts(
                                 'Delete',
-                                color: context.red,
+                                color: c.red,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -103,7 +103,7 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
                     onTap: () => _openChat(chatTitle),
                     contentPadding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 15),
-                    tileColor: context.background,
+                    tileColor: c.background,
                     shape: const Border(
                       bottom: BorderSide(color: AppColors.gray, width: 1.0),
                     ),
@@ -175,9 +175,9 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
         TextEditingController(text: oldTitle);
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (c) {
         return AlertDialog(
-          backgroundColor: context.background,
+          backgroundColor: c.background,
           title: const Texts(
             'Edit Chat Name',
             fontWeight: FontWeight.w600,
@@ -190,7 +190,7 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(c).pop();
               },
               child: const Texts('Cancel', fontWeight: FontWeight.w600),
             ),
@@ -205,7 +205,7 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
                   await _saveChatHistory();
                   await _loadChatHistory();
                 }
-                Navigator.of(context).pop();
+                Navigator.of(c).pop();
               },
               child: const Texts('Save', fontWeight: FontWeight.w600),
             ),

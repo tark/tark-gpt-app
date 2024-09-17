@@ -20,8 +20,8 @@ class GuideScreen extends StatefulWidget {
 }
 
 class _GuideScreenState extends State<GuideScreen> {
-  final PageController _pageController = PageController(initialPage: 0);
-  int _currentPage = 0;
+  final _pageController = PageController(initialPage: 0);
+  var _currentPage = 0;
 
   @override
   void initState() {
@@ -42,24 +42,10 @@ class _GuideScreenState extends State<GuideScreen> {
     super.dispose();
   }
 
-  void _nextPage() {
-    if (_pageController.page != null && _pageController.page! < 2) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else if (_pageController.page == 2) {
-      context.read<MainCubit>().completeOnboarding();
-    }
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext c) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-      ),
-      backgroundColor: context.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -72,24 +58,27 @@ class _GuideScreenState extends State<GuideScreen> {
                   height: AppSize.iconSize,
                 ),
                 const Vertical.big(),
-                const Texts(
+                Texts(
                   "Welcome to",
                   fontSize: AppSize.fontBigExtra,
                   fontWeight: FontWeight.w700,
                   isCenter: true,
+                  color: c.primary,
                 ),
-                const Texts(
+                Texts(
                   "ChatGPT",
                   fontSize: AppSize.fontBigExtra,
                   fontWeight: FontWeight.w700,
                   isCenter: true,
+                  color: c.primary,
                 ),
                 const Vertical.big(),
-                const Texts(
+                Texts(
                   "Ask anything, get your answer",
                   fontSize: AppSize.fontNormal,
                   fontWeight: FontWeight.w600,
                   isCenter: true,
+                  color: c.primary, // Added color parameter
                 ),
                 const Vertical.big(),
                 SizedBox(
@@ -150,15 +139,15 @@ class _GuideScreenState extends State<GuideScreen> {
                 PageIndicator(
                   count: 3,
                   currentIndex: _currentPage,
-                  activeColor: context.greenAccent,
-                  inactiveColor: context.stepsSecondary,
+                  activeColor: c.greenAccent,
+                  inactiveColor: c.stepsSecondary,
                 ),
                 const Vertical.big(),
                 SizedBox(
                   width: double.infinity,
                   child: Buttons(
                     onPressed: _nextPage,
-                    buttonColor: context.greenAccent,
+                    buttonColor: c.greenAccent,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -167,6 +156,7 @@ class _GuideScreenState extends State<GuideScreen> {
                           fontSize: AppSize.fontNormalBig,
                           fontWeight: FontWeight.w700,
                           isCenter: true,
+                          color: c.primary,
                         ),
                         if (_currentPage == 2)
                           Padding(
@@ -184,5 +174,16 @@ class _GuideScreenState extends State<GuideScreen> {
         ),
       ),
     );
+  }
+
+  void _nextPage() {
+    if (_pageController.page != null && _pageController.page! < 2) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else if (_pageController.page == 2) {
+      context.read<MainCubit>().completeOnboarding();
+    }
   }
 }

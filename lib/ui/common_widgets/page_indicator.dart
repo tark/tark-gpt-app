@@ -33,9 +33,6 @@ class PageIndicator extends StatelessWidget {
           margin: EdgeInsets.only(right: index < count - 1 ? gap : 0),
           decoration: BoxDecoration(
             color: index == currentIndex ? activeColor : inactiveColor,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(AppSize.borderRadiusBig),
-            ),
           ),
         );
       }),

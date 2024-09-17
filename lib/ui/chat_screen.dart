@@ -8,10 +8,10 @@ import 'package:tark_gpt_app/blocs/chat_cubit.dart';
 import 'package:tark_gpt_app/util/context_extensions.dart';
 import 'package:tark_gpt_app/config/settings.dart';
 
-import 'common_widgets/my_app_bar.dart';
 import 'ui_constants.dart';
 import 'common_widgets/texts.dart';
 import 'common_widgets/buttons.dart';
+import 'common_widgets/my_app_bar.dart';
 
 class ChatScreen extends StatefulWidget {
   final String? chatTitle;
@@ -23,11 +23,11 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _controller = TextEditingController();
+  final _controller = TextEditingController();
+  var _showInitialMessage = true;
+  var _isLoading = false;
+  var _showRegenerateButton = false;
   List<Map<String, String>> _messages = [];
-  bool _showInitialMessage = true;
-  bool _isLoading = false;
-  bool _showRegenerateButton = false;
 
   @override
   void initState() {
@@ -54,19 +54,55 @@ class _ChatScreenState extends State<ChatScreen> {
         return false;
       },
       child: Scaffold(
-        appBar: MyAppBar(
-          onTap: () {
-            if (widget.chatTitle != null) {
-              _saveChatHistory(widget.chatTitle ?? '');
-            }
-            Navigator.of(context).pop(widget.chatTitle ?? 'Untitled Chat');
-          },
-          title: widget.chatTitle ?? 'Back',
-          firstIconPath: AppImages.arrowBackIcon,
-          secondIconPath: AppImages.gptIcon,
-          firstIconSize: AppSize.iconSizeMicro,
-          secondIconSize: AppSize.iconSizeSmall,
+        appBar: AppBar(
+          centerTitle: true,
+          title: Texts(
+            'My chat',
+            fontSize: AppSize.fontBig,
+            fontWeight: FontWeight.w600,
+            isCenter: true,
+            color: context.secondary,
+          ),
         ),
+        drawer: Drawer(
+          child: Container(
+            color: context.background, // Set the background color to context's background color
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                DrawerHeader(
+                  child: Texts(
+                    'OpenAI API',
+                      color: context.primary,
+                      fontSize: AppSize.fontBig,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: ListTile(
+                    leading: Icon(Icons.audiotrack),
+                    title: Text('Audio'),
+                    onTap: () {
+
+                    },
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: ListTile(
+                    leading: Icon(Icons.chat),
+                    title: Text('Chat'),
+                    onTap: () {
+
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
         backgroundColor: context.background,
         body: SafeArea(
           child: Column(
@@ -82,7 +118,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           _messages.add({'loading': ''});
                         } else if (i.response.isNotEmpty) {
                           _messages.removeWhere(
-                              (message) => message.containsKey('loading'));
+                                  (message) => message.containsKey('loading'));
                           _messages.add({'bot': i.response});
                           _showRegenerateButton = true;
                         } else if (i.error.isNotEmpty) {
@@ -118,7 +154,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _loadChatHistory(String chatTitle) async {
     final chatHistory = await Settings.getChatHistory(chatTitle);
-    if (chatHistory != null && chatHistory.isNotEmpty) {
+    if (chatHistory.isNotEmpty) {
       setState(() {
         _messages = chatHistory.map((message) {
           if (message.startsWith('user:')) {
@@ -165,7 +201,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _regenerateResponse() {
     if (_messages.isNotEmpty) {
       final lastUserMessage =
-          _messages.lastWhere((message) => message.containsKey('user'))['user'];
+      _messages.lastWhere((message) => message.containsKey('user'))['user'];
       if (lastUserMessage != null) {
         context.read<ChatCubit>().sendMessage(lastUserMessage);
       }
@@ -216,6 +252,7 @@ class Chat extends StatelessWidget {
                             ? CrossAxisAlignment.end
                             : CrossAxisAlignment.start,
                         children: [
+                          const Vertical.small(),
                           ConstrainedBox(
                             constraints: BoxConstraints(
                               maxWidth: MediaQuery.of(context).size.width *
@@ -225,39 +262,32 @@ class Chat extends StatelessWidget {
                               child: Container(
                                 padding: AppPadding.allNormal,
                                 decoration: BoxDecoration(
-                                  color: isUserMessage
-                                      ? context.greenAccent
-                                      : context.cardBackground,
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: const Radius.circular(8),
-                                    topRight: const Radius.circular(8),
-                                    bottomLeft: isUserMessage
-                                        ? const Radius.circular(8)
-                                        : const Radius.circular(0),
-                                    bottomRight: isUserMessage
-                                        ? const Radius.circular(0)
-                                        : const Radius.circular(8),
+                                  color: context.cardBackground,
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(
+                                    color: context.cardBackground,
+                                    width: 1,
                                   ),
                                 ),
                                 child: isUserMessage
                                     ? Texts(
-                                        message['user'],
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: AppSize.fontNormal,
-                                        maxLines: 1000,
-                                      )
+                                  message['user'],
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: AppSize.fontNormal,
+                                  maxLines: 1000,
+                                )
                                     : message.containsKey('loading')
-                                        ? Lottie.asset(
-                                            AppAnimations.loadingAnimation,
-                                            width: AppSize.animationSizeSmall,
-                                            height: AppSize.animationSizeSmall)
-                                        : Texts(
-                                            message['bot'],
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: AppSize.fontNormal,
-                                            maxLines: 1000,
-                                            overflow: TextOverflow.visible,
-                                          ),
+                                    ? Lottie.asset(
+                                    AppAnimations.loadingAnimation,
+                                    width: AppSize.animationSizeSmall,
+                                    height: AppSize.animationSizeSmall)
+                                    : Texts(
+                                  message['bot'],
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: AppSize.fontNormal,
+                                  maxLines: 1000,
+                                  overflow: TextOverflow.visible,
+                                ),
                               ),
                             ),
                           ),
@@ -337,9 +367,10 @@ class ChatInput extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
+              padding: AppPadding.allSmall,
               decoration: BoxDecoration(
                 color: context.cardBackground,
-                borderRadius: BorderRadius.circular(8.0),
+                borderRadius: BorderRadius.circular(30.0),
               ),
               child: TextField(
                 controller: controller,
@@ -349,27 +380,11 @@ class ChatInput extends StatelessWidget {
                 decoration: InputDecoration(
                   fillColor: Colors.transparent,
                   filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: context.gray,
-                      width: 2.0,
-                    ),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: context.primary,
-                      width: 2.0,
-                    ),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
                   suffixIcon: IconButton(
-                    icon: SvgPicture.asset(
-                      AppImages.messageIcon,
-                      height: AppSize.iconSizeBig,
-                    ),
+                    icon: const Icon(Icons.send),
                     onPressed: onSend,
                   ),
+                  border: InputBorder.none,
                 ),
               ),
             ),
@@ -378,10 +393,11 @@ class ChatInput extends StatelessWidget {
       ),
     );
   }
+
 }
 
 class CopyButton extends StatefulWidget {
-  final String message;
+  final message;
 
   const CopyButton({Key? key, required this.message}) : super(key: key);
 
@@ -390,7 +406,7 @@ class CopyButton extends StatefulWidget {
 }
 
 class _CopyButtonState extends State<CopyButton> {
-  String _buttonText = "Copy";
+  var _buttonText = "Copy";
 
   void _copyToClipboard() {
     Clipboard.setData(ClipboardData(text: widget.message));
@@ -425,10 +441,10 @@ class _CopyButtonState extends State<CopyButton> {
 }
 
 class Messages extends StatelessWidget {
-  final List<Map<String, String>> messages;
-  final bool showInitialMessage;
-  final TextEditingController controller;
-  final VoidCallback sendMessage;
+  final messages;
+  final showInitialMessage;
+  final controller;
+  final sendMessage;
 
   const Messages({
     Key? key,
@@ -447,8 +463,8 @@ class Messages extends StatelessWidget {
             children: [
               ListView.builder(
                 itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  final message = messages[index];
+                itemBuilder: (c, i) {
+                  final message = messages[i];
                   final isUserMessage = message.containsKey('user');
 
                   return ListTile(
@@ -459,9 +475,8 @@ class Messages extends StatelessWidget {
                       child: Container(
                         padding: AppPadding.allNormal,
                         decoration: BoxDecoration(
-                          color: isUserMessage
-                              ? context.greenAccent
-                              : context.cardBackground,
+                          color:
+                          isUserMessage ? c.greenAccent : c.cardBackground,
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(8),
                             topRight: const Radius.circular(8),
@@ -475,16 +490,16 @@ class Messages extends StatelessWidget {
                         ),
                         child: isUserMessage
                             ? Texts(
-                                message['user'],
-                                fontWeight: FontWeight.w600,
-                              )
+                          message['user'],
+                          fontWeight: FontWeight.w600,
+                        )
                             : message.containsKey('loading')
-                                ? Lottie.asset(AppAnimations.loadingAnimation,
-                                    width: AppSize.animationSizeSmall)
-                                : Texts(
-                                    message['bot'],
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                            ? Lottie.asset(AppAnimations.loadingAnimation,
+                            width: AppSize.animationSizeSmall)
+                            : Texts(
+                          message['bot'],
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   );
@@ -510,3 +525,4 @@ class Messages extends StatelessWidget {
     );
   }
 }
+

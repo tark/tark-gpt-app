@@ -9,7 +9,7 @@ const _defaultTextSize = AppSize.fontRegular;
 const _defaultFontWeight = FontWeight.w400;
 const _defaultMaxLines = 1;
 const _defaultTextOverflow = TextOverflow.ellipsis;
-const _defaultFontFamily = 'Raleway'; // Set the default font family
+const _defaultFontFamily = 'Raleway';
 
 class Texts extends StatelessWidget {
   const Texts(

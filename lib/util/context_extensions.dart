@@ -8,7 +8,7 @@ extension ContextExtention on BuildContext {
 
   Color get scaffoldBackground => Theme.of(this).scaffoldBackgroundColor;
 
-  Color get primary => Theme.of(this).colorScheme.primary;
+  Color get primary => AppColors.primary;
 
   Color get greenAccent => AppColors.greenAccent;
 

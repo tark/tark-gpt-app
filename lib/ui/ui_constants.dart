@@ -116,10 +116,11 @@ class AppColors {
   static const text = Color(0xff2D2F3E);
   static const textSecondary = Color(0x662D2F3E);
   static const gray = Color(0x66FFFFFF);
-  static const background = Color(0xFF343541);
+  static const background = Color(0xff212121);
+  static const primary = Color(0xFFFFFFFF);
   static const red = Color(0xFFED8C8C);
   static const black = Color(0xFF202123);
-  static const cardBackground = Color(0xFF444550);
+  static const cardBackground = Color(0xFF2F2F2F);
   static const stepsSecondary = Color(0x33FFFFFF);
   static const gradientBlue = Color(0xff4B50C7);
   static const gradientYellow = Color(0xffC19A4D);
