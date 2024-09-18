@@ -78,7 +78,7 @@ class _GuideScreenState extends State<GuideScreen> {
                   fontSize: AppSize.fontNormal,
                   fontWeight: FontWeight.w600,
                   isCenter: true,
-                  color: c.primary, // Added color parameter
+                  color: c.primary,
                 ),
                 const Vertical.big(),
                 SizedBox(
@@ -147,6 +147,7 @@ class _GuideScreenState extends State<GuideScreen> {
                   width: double.infinity,
                   child: Buttons(
                     onPressed: _nextPage,
+                    borderRadius: 30,
                     buttonColor: c.greenAccent,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -161,8 +162,10 @@ class _GuideScreenState extends State<GuideScreen> {
                         if (_currentPage == 2)
                           Padding(
                             padding: AppPadding.leftSmall,
-                            child: SvgPicture.asset(AppImages.arrowRightIcon,
-                                height: AppSize.iconSizeMicro),
+                            child: SvgPicture.asset(
+                              AppImages.arrowRightIcon,
+                              height: AppSize.iconSizeMicro,
+                            ),
                           ),
                       ],
                     ),

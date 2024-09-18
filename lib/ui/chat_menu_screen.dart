@@ -31,17 +31,20 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
   @override
   Widget build(BuildContext c) {
     return Scaffold(
-      appBar: MyAppBar(
-        onTap: _startNewChat,
-        title: "New Chat",
-        firstIconPath: AppImages.chatIcon,
-        secondIconPath: AppImages.arrowForwardIcon,
-        firstIconSize: AppSize.iconSizeSmall,
-        secondIconSize: AppSize.iconSizeMicro,
+      appBar: AppBar(
+        centerTitle: true,
+        title: Texts(
+          'Chat menu',
+          fontSize: AppSize.fontBig,
+          fontWeight: FontWeight.w600,
+          isCenter: true,
+          color: context.secondary,
+        ),
       ),
       backgroundColor: c.background,
       body: SafeArea(
         child: SingleChildScrollView(
+          padding: AppPadding.allNormal,
           child: Column(
             children: [
               ListView.builder(
@@ -50,68 +53,77 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
                 itemCount: _previousChats.length,
                 itemBuilder: (c, i) {
                   final chatTitle = _previousChats[i];
-                  return ListTile(
-                    leading: SvgPicture.asset(
-                      AppImages.chatIcon,
-                      height: AppSize.iconSizeSmall,
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 5),
+                    decoration: BoxDecoration(
+                      color: c.cardBackground, // Background color
+                      borderRadius: BorderRadius.circular(30), // Border radius
                     ),
-                    title: Texts(
-                      chatTitle,
-                      fontSize: AppSize.fontNormal,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        PopupMenuButton<int>(
-                          icon: SvgPicture.asset(
-                            AppImages.editIcon,
-                            height: AppSize.iconSizeMicro,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 15,
+                      ),
+                      leading: SvgPicture.asset(
+                        AppImages.chatIcon,
+                        height: AppSize.iconSizeSmall,
+                      ),
+                      title: Texts(
+                        chatTitle,
+                        fontSize: AppSize.fontNormal,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          PopupMenuButton<int>(
+                            icon: SvgPicture.asset(
+                              AppImages.editIcon,
+                              height: AppSize.iconSizeMicro,
+                            ),
+                            onSelected: (value) {
+                              if (value == 0) {
+                                _editChatName(i);
+                              } else if (value == 1) {
+                                _deleteChat(i);
+                              }
+                            },
+                            itemBuilder: (c) => [
+                              const PopupMenuItem(
+                                value: 0,
+                                child: Texts(
+                                  'Edit',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 1,
+                                child: Texts(
+                                  'Delete',
+                                  color: c.red,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
-                          onSelected: (value) {
-                            if (value == 0) {
-                              _editChatName(i);
-                            } else if (value == 1) {
-                              _deleteChat(i);
-                            }
-                          },
-                          itemBuilder: (c) => [
-                            const PopupMenuItem(
-                              value: 0,
-                              child: Texts(
-                                'Edit',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            PopupMenuItem(
-                              value: 1,
-                              child: Texts(
-                                'Delete',
-                                color: c.red,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Horizontal.small(),
-                        SvgPicture.asset(
-                          AppImages.arrowForwardIcon,
-                          height: AppSize.iconSizeMicro,
-                        ),
-                      ],
-                    ),
-                    onTap: () => _openChat(chatTitle),
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 15),
-                    tileColor: c.background,
-                    shape: const Border(
-                      bottom: BorderSide(color: AppColors.gray, width: 1.0),
+                        ],
+                      ),
+                      onTap: () => _openChat(chatTitle),
                     ),
                   );
                 },
               ),
             ],
           ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _startNewChat,
+        backgroundColor: context.cardBackground,
+        shape: const CircleBorder(),
+        child: Icon(
+          Icons.add,
+          color: context.secondary,
         ),
       ),
     );
@@ -129,6 +141,7 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
   }
 
   Future<void> _startNewChat() async {
+    _loadChatHistory();
     await _loadChatHistory();
 
     String newChatTitle = 'Chat ${_previousChats.length + 1}';
@@ -136,7 +149,9 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => BlocProvider(
-          create: (context) => ChatCubit(api: Api()),
+          create: (context) => ChatCubit(
+              api: Api(),
+          ),
           child: ChatScreen(chatTitle: newChatTitle),
         ),
       ),
@@ -160,8 +175,10 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BlocProvider(
-          create: (context) => ChatCubit(api: Api()),
+        builder: (c) => BlocProvider(
+          create: (c) => ChatCubit(
+            api: Api(),
+          ),
           child: ChatScreen(chatTitle: chatTitle),
         ),
       ),
@@ -171,8 +188,7 @@ class _ChatMenuScreenState extends State<ChatMenuScreen> {
 
   void _editChatName(int index) async {
     final oldTitle = _previousChats[index];
-    final TextEditingController editController =
-        TextEditingController(text: oldTitle);
+    final editController = TextEditingController(text: oldTitle);
     showDialog(
       context: context,
       builder: (c) {

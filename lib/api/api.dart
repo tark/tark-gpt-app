@@ -19,7 +19,8 @@ class Api {
         options: Options(
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
+            'Authorization':
+                'Bearer $apiKey',
           },
         ),
         data: {
